@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SOIL CRC Benefit-Cost Analysis Tool</title>
+  <meta name="description" content="SOIL CRC Benefit-Cost Analysis Tool for agricultural trials. Upload the official Excel template, compare treatments, test assumptions, and prepare a clear farmer-friendly report.">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script defer src="default-data.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="container hero-header">
+      <img src="logo_university_newcastle.jpg" alt="University of Newcastle logo" class="hero-logo hero-logo-left">
+      <div class="hero-copy">
+        <div class="eyebrow">SOIL CRC</div>
+        <h1>Benefit-Cost Analysis Tool</h1>
+        <p>Farmer-friendly comparison of trial treatments using the official project workbook.</p>
+      </div>
+      <img src="logo_soil_crc.png" alt="SOIL CRC logo" class="hero-logo hero-logo-right">
+    </div>
+  </header>
+
+  <nav class="tabbar" aria-label="Primary">
+    <div class="container tabbar-row">
+      <button type="button" class="tab-btn active" data-tab="introduction">Introduction</button>
+      <button type="button" class="tab-btn" data-tab="data">Data</button>
+      <button type="button" class="tab-btn" data-tab="assumptions">Assumptions</button>
+      <button type="button" class="tab-btn" data-tab="results">Results</button>
+      <button type="button" class="tab-btn" data-tab="sensitivity">Sensitivity</button>
+      <button type="button" class="tab-btn" data-tab="help">Help</button>
+    </div>
+  </nav>
+
+  <main id="main" class="container page-shell">
+    <section id="statusBanner" class="status-banner neutral" aria-live="polite">
+      <div>
+        <strong id="statusTitle">Ready</strong>
+        <div id="statusText">The tool opens with the provided trial workbook as the default dataset. You can upload a filled official workbook at any time.</div>
+      </div>
+      <div class="status-pills">
+        <span class="pill" id="summaryFile">Default workbook loaded</span>
+        <span class="pill" id="summaryRows">Rows: -</span>
+        <span class="pill" id="summaryTreatments">Treatments: -</span>
+      </div>
+    </section>
+
+    <section class="tab-panel active" id="tab-introduction">
+      <div class="grid intro-grid">
+        <article class="card">
+          <div class="badge">Commercial working build</div>
+          <h2>SOIL CRC BCA Analytical Tool</h2>
+          <p>This website is designed around the official project workbook so farmers, advisers, and project teams can move from data entry to treatment comparison with a simple and consistent workflow.</p>
+          <div class="action-row">
+            <a class="btn btn-primary" href="soil_crc_bca_official_template.xlsx" download>Download official template</a>
+            <button type="button" class="btn btn-secondary" id="useDefaultBtn">Use provided default data</button>
+            <button type="button" class="btn btn-secondary" id="goToDataBtn">Go to data tab</button>
+          </div>
+          <div class="mini-grid">
+            <div class="mini-card"><span>Workflow</span><strong>Download, fill, upload, analyse</strong></div>
+            <div class="mini-card"><span>Comparison</span><strong>Control or side-by-side</strong></div>
+            <div class="mini-card"><span>Reporting</span><strong>Basic printable report</strong></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Publisher and development context</h3>
+          <p>Copyright © 2024–2027 CRC High Performance Soils.</p>
+          <p>Publisher and Developer: Frank Wogbe Agbola, The University of Newcastle, Australia.</p>
+          <p>The Soil CRC BCA Tool was developed as part of CRC High Performance Soils Project 1.2.008, packaging Soil CRC tools to enhance the extension and adoption of improved soil management practices.</p>
+          <p>Email feedback, comments, and suggestions, quoting the current version, to <a href="mailto:Frank.Agbola@newcastle.edu.au">Frank.Agbola@newcastle.edu.au</a>.</p>
+        </article>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Acknowledgements</h3>
+          <p>Thanks to the project team members, Simon Kruger and representatives of Western Midlands Group, Riverine Plains Incorporated, Corrigin Farm Improvement Group, Agricultural Innovation Research &amp; Research Eyre, the University of Tasmania, and Murdoch University.</p>
+          <p>Co-developer acknowledgement: Dr Mesfin Genie, The University of Newcastle, Australia.</p>
+          <p>CRC for High Performance Soils acknowledges the Australian Government for funding obtained through the CRC Program and the contributions of Soil CRC partners and members.</p>
+        </article>
+        <article class="card">
+          <h3>Disclaimer</h3>
+          <p>The tool summarises uploaded trial data and assumption settings to support practical discussion. It should not replace independent professional advice or local agronomic judgement.</p>
+          <p>Appropriate quality assurance remains important before interpreting results, sharing reports, or using the outputs in decision-making.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-data">
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <h2>Workbook and controls</h2>
+            <p class="muted">The tool is already loaded with the provided trial workbook. You can keep using it or upload a filled official workbook.</p>
+          </div>
+          <div class="action-row">
+            <a class="btn btn-primary" href="soil_crc_bca_official_template.xlsx" download>Download template</a>
+            <button type="button" class="btn btn-secondary" id="loadDefaultDataBtn">Reload provided default data</button>
+            <button type="button" class="btn btn-secondary" id="clearDataBtn">Clear current data</button>
+          </div>
+        </div>
+
+        <div class="upload-card">
+          <label for="fileInput" class="upload-label">Upload filled official workbook</label>
+          <input id="fileInput" type="file" accept=".xlsx,.xlsm,.csv,.tsv">
+          <p class="muted small">Supported formats: .xlsx, .xlsm, .csv, .tsv</p>
+          <div class="action-row">
+            <button type="button" class="btn btn-primary" id="validateDataBtn">Validate workbook</button>
+            <button type="button" class="btn btn-primary" id="runAnalysisBtnTop">Run analysis now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Workbook summary</h3>
+          <dl class="summary-list">
+            <div><dt>Workbook</dt><dd id="fileNameValue">-</dd></div>
+            <div><dt>Sheet</dt><dd id="sheetNameValue">-</dd></div>
+            <div><dt>Rows read</dt><dd id="rowsReadValue">-</dd></div>
+            <div><dt>Valid rows</dt><dd id="validRowsValue">-</dd></div>
+            <div><dt>Treatments</dt><dd id="treatmentsValue">-</dd></div>
+            <div><dt>Detected control</dt><dd id="controlValue">-</dd></div>
+          </dl>
+
+          <div class="form-grid">
+            <div>
+              <label for="controlSelect">Control treatment</label>
+              <select id="controlSelect"></select>
+            </div>
+            <div>
+              <label for="primaryTreatmentSelect">Primary treatment</label>
+              <select id="primaryTreatmentSelect"></select>
+            </div>
+            <div>
+              <label for="secondaryTreatmentSelect">Second treatment</label>
+              <select id="secondaryTreatmentSelect"></select>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button type="button" class="btn btn-primary" id="runAnalysisBtn">Run analysis</button>
+            <button type="button" class="btn btn-secondary" id="goToResultsBtn">Open results tab</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Validation messages</h3>
+          <div id="validationMessages" class="message-list"></div>
+          <div class="note-box">
+            <strong>Quick checks</strong>
+            <ul>
+              <li>Keep the official header names unchanged.</li>
+              <li>Enter one row per replicate.</li>
+              <li>Make sure <strong>Crop_yield_t_ha</strong> and <strong>Total Farm Costs_per_ha</strong> are numeric.</li>
+              <li>Use the control label for the baseline treatment where relevant.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+
+      <article class="card">
+        <h3>Preview</h3>
+        <div class="table-scroll">
+          <table id="previewTable" class="data-table">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="tab-panel" id="tab-assumptions">
+      <div class="card">
+        <h2>Analysis assumptions</h2>
+        <p class="muted">Adjust the main assumptions, then run the analysis.</p>
+        <div class="form-grid">
+          <div>
+            <label for="grainPriceInput">Grain price ($ per tonne)</label>
+            <input id="grainPriceInput" type="number" step="0.01" min="0" value="500">
+          </div>
+          <div>
+            <label for="yearsInput">Analysis period (years)</label>
+            <input id="yearsInput" type="number" step="1" min="1" value="10">
+          </div>
+          <div>
+            <label for="discountMode">Discounting method</label>
+            <select id="discountMode">
+              <option value="constant">Constant rate</option>
+              <option value="declining">Declining rate</option>
+              <option value="increasing">Increasing rate</option>
+            </select>
+          </div>
+          <div>
+            <label for="discountInitial">Initial discount rate (%)</label>
+            <input id="discountInitial" type="number" step="0.1" min="0" value="5">
+          </div>
+          <div>
+            <label for="discountLater">Later discount rate (%)</label>
+            <input id="discountLater" type="number" step="0.1" min="0" value="3">
+          </div>
+          <div>
+            <label for="discountSwitch">Switch year</label>
+            <input id="discountSwitch" type="number" step="1" min="1" value="5">
+          </div>
+        </div>
+        <div class="note-box">
+          <strong>Discounting explanation</strong>
+          <p id="discountExplanation"></p>
+        </div>
+        <div class="action-row">
+          <button type="button" class="btn btn-primary" id="resetAssumptionsBtn">Reset assumptions</button>
+          <button type="button" class="btn btn-primary" id="runAnalysisBtnAssumptions">Run analysis</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-results">
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <h2>Results</h2>
+            <p class="muted">Compare a selected treatment with the control or compare two treatments side by side.</p>
+          </div>
+          <div class="form-inline">
+            <label for="comparisonMode">Comparison mode</label>
+            <select id="comparisonMode">
+              <option value="control">Treatment versus control</option>
+              <option value="pair">Treatment versus treatment</option>
+            </select>
+          </div>
+        </div>
+        <div id="comparisonWarning" class="warning-box hidden"></div>
+        <div id="kpiGrid" class="kpi-grid"></div>
+        <div id="comparisonSummary" class="compare-summary"></div>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Ranking table</h3>
+          <div class="table-scroll">
+            <table id="rankingTable" class="data-table"><thead></thead><tbody></tbody></table>
+          </div>
+        </article>
+        <article class="card">
+          <h3>Report</h3>
+          <p class="muted">Prepare a concise report for printing or attachment to project documents.</p>
+          <div class="action-row">
+            <button type="button" class="btn btn-primary" id="downloadReportBtn">Download basic report</button>
+            <button type="button" class="btn btn-secondary" id="printReportBtn">Print report</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-sensitivity">
+      <div class="card">
+        <h2>Sensitivity analysis</h2>
+        <p class="muted">Test alternative numeric assumptions directly.</p>
+        <div class="form-grid">
+          <div>
+            <label for="sensPrice">Alternative grain price ($/t)</label>
+            <input id="sensPrice" type="number" step="0.01" min="0" value="550">
+          </div>
+          <div>
+            <label for="sensBenefitPct">Benefit change (%)</label>
+            <input id="sensBenefitPct" type="number" step="0.1" value="5">
+          </div>
+          <div>
+            <label for="sensCostPct">Cost change (%)</label>
+            <input id="sensCostPct" type="number" step="0.1" value="5">
+          </div>
+          <div>
+            <label for="sensDiscountLow">Alternative discount rate A (%)</label>
+            <input id="sensDiscountLow" type="number" step="0.1" min="0" value="3">
+          </div>
+          <div>
+            <label for="sensDiscountHigh">Alternative discount rate B (%)</label>
+            <input id="sensDiscountHigh" type="number" step="0.1" min="0" value="7">
+          </div>
+        </div>
+        <div class="action-row">
+          <button type="button" class="btn btn-primary" id="runSensitivityBtn">Run sensitivity analysis</button>
+        </div>
+      </div>
+
+      <article class="card">
+        <h3>Sensitivity results</h3>
+        <div class="table-scroll">
+          <table id="sensitivityTable" class="data-table"><thead></thead><tbody></tbody></table>
+        </div>
+      </article>
+    </section>
+
+    <section class="tab-panel" id="tab-help">
+      <div class="grid">
+        <article class="card">
+          <h2>Help and frequently asked questions</h2>
+          <details open>
+            <summary>Why are results missing?</summary>
+            <p>Run the analysis after loading data. Also check that treatment names, yield values, and total farm costs per hectare are present and numeric.</p>
+          </details>
+          <details>
+            <summary>Why is the ranking table empty?</summary>
+            <p>The ranking table fills only after a successful analysis. Go back to the Data tab, check the validation messages, and then run the analysis again.</p>
+          </details>
+          <details>
+            <summary>How should the workbook be structured?</summary>
+            <p>Use the official template. Keep the header row, enter one row per replicate, and keep the fields <strong>Amendment Name</strong>, <strong>Crop_yield_t_ha</strong>, and <strong>Total Farm Costs_per_ha</strong> populated.</p>
+          </details>
+          <details>
+            <summary>What if I want to compare two non-control treatments?</summary>
+            <p>Go to Results, switch the comparison mode to treatment versus treatment, and select two different treatments.</p>
+          </details>
+          <details>
+            <summary>What if upload does not work?</summary>
+            <p>Use a modern browser and keep the internet connection active so the Excel reader library can load. The website opens with the provided trial workbook already loaded, so you can still use the tool immediately.</p>
+          </details>
+        </article>
+
+        <article class="card">
+          <h3>User guide</h3>
+          <p>Use the Data tab to confirm the workbook and preview the rows, the Assumptions tab to set prices and discounting, the Results tab to compare treatments, and the Sensitivity tab to test alternative numeric assumptions.</p>
+          <p><a href="guide.html">Open the quick guide</a></p>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
